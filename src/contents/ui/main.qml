@@ -14,6 +14,18 @@ Kirigami.ApplicationWindow {
     // and provides additional context for the translators
     title: i18nc("@title:window", "Test Kountdown")
 
+    globalDrawer: Kirigami.GlobalDrawer {
+        isMenu: true
+        actions: [
+            Kirigami.Action {
+                text: i18n("Quit")
+                icon.name: "gtk-quit"
+                shortcut: StandardKey.Quit
+                onTriggered: Qt.quit()
+            }
+        ]
+    }
+    
     // Set the first page that will be loaded when the app opens
     // This can also be set to an id of a Kirigami.Page
     pageStack.initialPage: Kirigami.ScrollablePage {
@@ -23,11 +35,7 @@ Kirigami.ApplicationWindow {
             id: addAction
             icon.name: "list-add"
             text: i18nc("@action:button", "Add Kountdown")
-            onTriggered: kountdownlistmodel.append({
-                name: "Kirigami action card Added !",
-                description: "It just work!",
-                date: 200
-            })
+            onTriggered: addSheet.open()
         }
         
         Kirigami.CardsListView{
@@ -42,6 +50,52 @@ Kirigami.ApplicationWindow {
                 name: "Un titre sympa"
                 description: "Une petite description sympa"
                 date: 100
+            }
+        }
+
+        Kirigami.OverlaySheet {
+            id: addSheet
+            header: Kirigami.Heading {
+                text: i18nc("@title:window", "Add kountdown")
+            }
+            Kirigami.FormLayout {
+                Controls.TextField {
+                    id: nameField
+                    Kirigami.FormData.label: i18nc("@label:textbox", "Name:")
+                    placeholderText: i18n("Event name (required)")
+                    onAccepted: descriptionField.forceActiveFocus()
+                }
+                Controls.TextField {
+                    id: descriptionField
+                    Kirigami.FormData.label: i18nc("@label:textbox", "Description:")
+                    placeholderText: i18n("Optional")
+                    onAccepted: dateField.forceActiveFocus()
+                }
+                Controls.TextField {
+                    id: dateField
+                    Kirigami.FormData.label: i18nc("@label:textbox", "Date:")
+                    placeholderText: i18n("YYYY-MM-DD")
+                    inputMask: "0000-00-00"
+                }
+                Controls.Button {
+                    id: doneButton
+                    Layout.fillWidth: true
+                    text: i18nc("@action:button", "Done")
+                    enabled: nameField.text.length > 0
+                    onClicked: {
+                        kountdownlistmodel.append({
+                            name: nameField.text,
+                            description: descriptionField.text,
+                            // The parse() method parses a string and returns the number of milliseconds
+                            // since January 1, 1970, 00:00:00 UTC.
+                            date: Date.parse(dateField.text)
+                        });
+                        nameField.text = ""
+                        descriptionField.text = ""
+                        dateField.text = ""
+                        addSheet.close();
+                    }
+                }
             }
         }
         
