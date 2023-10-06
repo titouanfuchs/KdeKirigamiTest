@@ -53,50 +53,19 @@ Kirigami.ApplicationWindow {
             }
         }
 
-        Kirigami.OverlaySheet {
-            id: addSheet
-            header: Kirigami.Heading {
-                text: i18nc("@title:window", "Add kountdown")
-            }
-            Kirigami.FormLayout {
-                Controls.TextField {
-                    id: nameField
-                    Kirigami.FormData.label: i18nc("@label:textbox", "Name:")
-                    placeholderText: i18n("Event name (required)")
-                    onAccepted: descriptionField.forceActiveFocus()
-                }
-                Controls.TextField {
-                    id: descriptionField
-                    Kirigami.FormData.label: i18nc("@label:textbox", "Description:")
-                    placeholderText: i18n("Optional")
-                    onAccepted: dateField.forceActiveFocus()
-                }
-                Controls.TextField {
-                    id: dateField
-                    Kirigami.FormData.label: i18nc("@label:textbox", "Date:")
-                    placeholderText: i18n("YYYY-MM-DD")
-                    inputMask: "0000-00-00"
-                }
-                Controls.Button {
-                    id: doneButton
-                    Layout.fillWidth: true
-                    text: i18nc("@action:button", "Done")
-                    enabled: nameField.text.length > 0
-                    onClicked: {
-                        kountdownlistmodel.append({
-                            name: nameField.text,
-                            description: descriptionField.text,
-                            // The parse() method parses a string and returns the number of milliseconds
-                            // since January 1, 1970, 00:00:00 UTC.
-                            date: Date.parse(dateField.text)
-                        });
-                        nameField.text = ""
-                        descriptionField.text = ""
-                        dateField.text = ""
-                        addSheet.close();
-                    }
-                }
-            }
+        AddEditSheet {
+            id: addEditSheet
+            onAdded: kountdownModel.append({
+                "name": name,
+                "description": description,
+                "date": Date.parse(kdate)
+            });
+            onEdited: kountdownModel.set(index, {
+                "name": name,
+                "description": description,
+                "date": Date.parse(kdate)
+            });
+            onRemoved: kountdownModel.remove(index, 1)
         }
         
         Component{
